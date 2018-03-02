@@ -25,8 +25,8 @@ def shape():
 
 
 # Head
-def head():
-    print(dataset.head(20))
+def head(i):
+    print(dataset.head(i))
 
 
 # descriptions
@@ -41,7 +41,7 @@ def class_distribution():
 
 # box and whisker plots
 def box_and_whisker_plots():
-    dataset.plot(kind='box', subplots=True, layout=(2,2), sharex=False, sharey=False)
+    dataset.plot(kind='box', subplots=True, layout=(2, 2), sharex=False, sharey=False)
     plt.show()
 
 
@@ -63,4 +63,61 @@ X = array[:, 0:4]
 Y = array[:, 4]
 validation_size = 0.20
 seed = 7
-X_train, X_validation, Y_train, Y_validation = model_selection.train_test_split(X, Y, test_size=validation_size, random_state=seed)
+X_train, X_validation, Y_train, Y_validation = model_selection.train_test_split(X, Y, test_size=validation_size,
+                                                                                random_state=seed)
+
+# Test options and evaluation metric
+seed = 7
+scoring = 'accuracy'
+
+# Let’s evaluate 6 different algorithms:
+
+# Logistic Regression (LR)  simple linear
+# Linear Discriminant Analysis (LDA)  simple linear
+# K-Nearest Neighbors (KNN)  nonlinear
+# Classification and Regression Trees (CART)  nonlinear
+# Gaussian Naive Bayes (NB)  nonlinear
+# Support Vector Machines (SVM).
+
+# Spot Check Algorithms
+models = [
+    ('LR', LogisticRegression()),
+    ('LDA', LinearDiscriminantAnalysis()),
+    ('KNN', KNeighborsClassifier()),
+    ('CART', DecisionTreeClassifier()),
+    ('NB', GaussianNB()), ('SVM', SVC())
+]
+
+# evaluate each model in turn
+results = []
+names = []
+
+
+def evaluate_each_model_in_turn():
+    for name, model in models:
+        kfold = model_selection.KFold(n_splits=10, random_state=seed)
+        cv_results = model_selection.cross_val_score(model, X_train, Y_train, cv=kfold, scoring=scoring)
+        results.append(cv_results)
+        names.append(name)
+        msg = "%s: %f (%f)" % (name, cv_results.mean(), cv_results.std())
+        print(msg)
+
+
+# Compare Algorithms
+def compare_algorithms():
+    fig = plt.figure()
+    fig.suptitle('Algorithm Comparison')
+    ax = fig.add_subplot(111)
+    plt.boxplot(results)
+    ax.set_xticklabels(names)
+    plt.show()
+
+
+# Make predictions on validation dataset
+knn = KNeighborsClassifier()
+knn.fit(X_train, Y_train)
+predictions = knn.predict(X_validation)
+print(accuracy_score(Y_validation, predictions))
+print(confusion_matrix(Y_validation, predictions))
+print(classification_report(Y_validation, predictions))
+
