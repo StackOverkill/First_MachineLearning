@@ -1,6 +1,6 @@
 # Load libraries
 import pandas
-from pandas.tools.plotting import scatter_matrix
+from pandas.plotting import scatter_matrix
 import matplotlib.pyplot as plt
 from sklearn import model_selection
 from sklearn.metrics import classification_report
@@ -85,7 +85,8 @@ models = [
     ('LDA', LinearDiscriminantAnalysis()),
     ('KNN', KNeighborsClassifier()),
     ('CART', DecisionTreeClassifier()),
-    ('NB', GaussianNB()), ('SVM', SVC())
+    ('NB', GaussianNB()),
+    ('SVM', SVC())
 ]
 
 # evaluate each model in turn
@@ -96,7 +97,7 @@ names = []
 def evaluate_each_model_in_turn():
     for name, model in models:
         kfold = model_selection.KFold(n_splits=10, random_state=seed)
-        cv_results = model_selection.cross_val_score(model, X_train, Y_train, cv=kfold, scoring=scoring)
+        cv_results = model_selection.cross_val_score(model, X_train, Y_train, cv=, scoring=scoring)
         results.append(cv_results)
         names.append(name)
         msg = "%s: %f (%f)" % (name, cv_results.mean(), cv_results.std())
